@@ -1,22 +1,14 @@
 import { useEffect, useState } from "react"
 import ContributionSkyline, { type ContributionDay } from "./ContributionSkyline"
 
-const USERNAME = "Yashvee30"
-
 export default function App() {
   const [data, setData] = useState<ContributionDay[] | null>(null)
 
   useEffect(() => {
-    fetch(`https://github-contributions-api.jogruber.de/v4/${USERNAME}?y=last`)
+    fetch(`${import.meta.env.BASE_URL}contributions.json`)
       .then((r) => r.json())
-      .then((j) =>
-        setData(
-          j.contributions.map((c: { date: string; count: number }) => ({
-            date: c.date,
-            count: c.count,
-          }))
-        )
-      )
+      .then((j: ContributionDay[]) => setData(j))
+      .catch(() => setData([]))
   }, [])
 
   if (!data) return <p style={{ padding: 24 }}>Loading…</p>
