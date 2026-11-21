@@ -21,7 +21,7 @@ jobs:
           const browser = await chromium.launch()
           const page = await browser.newPage({ viewport: { width: 1000, height: 800 }, deviceScaleFactor: 2 })
           await page.goto("https://yashvee30.github.io/skyline/", { waitUntil: "networkidle" })
-          await page.waitForTimeout(5000)
+          await page.waitForTimeout(12000)
           await page.locator("section").first().screenshot({ path: "skyline.png" })
           await browser.close()
           EOF
