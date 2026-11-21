@@ -1,0 +1,39 @@
+name: Screenshot
+on:
+  schedule:
+    - cron: "30 18 * * *"
+  workflow_dispatch:
+jobs:
+  shot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright
+        run: |
+          npm install playwright
+          npx playwright install --with-deps chromium
+      - name: Take screenshot
+        run: |
+          cat > shot.mjs << 'EOF'
+          import { chromium } from "playwright"
+          const browser = await chromium.launch()
+          const page = await browser.newPage({ viewport: { width: 1000, height: 800 }, deviceScaleFactor: 2 })
+          await page.goto("https://yashvee30.github.io/skyline/", { waitUntil: "networkidle" })
+          await page.waitForTimeout(5000)
+          await page.locator("section").first().screenshot({ path: "skyline.png" })
+          await browser.close()
+          EOF
+          node shot.mjs
+      - name: Push to profile repo
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          git clone https://x-access-token:${GH_PAT}@github.com/Yashvee30/Yashvee30.git profile
+          cp skyline.png profile/skyline.png
+          cd profile
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add skyline.png
+          git diff --staged --quiet || (git commit -m "update skyline screenshot" && git push)
