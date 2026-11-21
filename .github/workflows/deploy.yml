@@ -2,6 +2,9 @@ name: Deploy
 on:
   push:
     branches: [main]
+  schedule:
+    - cron: "0 18 * * *"
+  workflow_dispatch:
 permissions:
   contents: read
   pages: write
@@ -16,6 +19,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Fetch contributions
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p public
+          gh api graphql -f query='query { user(login: "Yashvee30") { contributionsCollection { contributionCalendar { weeks { contributionDays { date contributionCount } } } } } }' \
+          | jq '[.data.user.contributionsCollection.contributionCalendar.weeks[].contributionDays[] | {date: .date, count: .contributionCount}]' > public/contributions.json
       - run: npm ci && npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
