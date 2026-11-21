@@ -21,7 +21,7 @@ jobs:
           node-version: 20
       - name: Fetch contributions
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           mkdir -p public
           gh api graphql -f query='query { user(login: "Yashvee30") { contributionsCollection { contributionCalendar { weeks { contributionDays { date contributionCount } } } } } }' \
